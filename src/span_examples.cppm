@@ -16,13 +16,13 @@ export module span_examples;
 
 // Demonstrates the use of std::span (C++20).
 // BEST PRACTICE: Pass std::span by value.
-export void demo_span(std::span<const int> data) {
-    // C++23: Using std::print for cleaner I/O without stream state
+export void demo_span(const std::span<const int> data) {
+    // C++23: Using std::print for cleaner I/O without a stream state
     std::print("  Elements ({}): ", data.size());
     for (const int n : data) {
         std::print("{} ", n);
     }
-    std::println(""); // Newline
+    std::println();
 }
 
 int sum_elements(std::span<const int> data) {
@@ -46,7 +46,7 @@ void process_window(std::span<const int> window) {
     }
 }
 
-void demo_fixed_span(std::span<int, 3> fixed) {
+void demo_fixed_span(const std::span<int, 3> fixed) {
     std::print("  Fixed-size span (3 elements): ");
     for (int n : fixed) {
         std::print("{} ", n);
@@ -61,16 +61,17 @@ void process_span_for_perf(std::span<const int> s) {
 }
 
 void compare_span_performance() {
+    using clock = std::chrono::high_resolution_clock;
     constexpr int iterations = 100000;
     std::vector<int> large_vector(iterations);
     std::iota(large_vector.begin(), large_vector.end(), 0);
 
     auto measure = [&](auto task) {
-        auto start = std::chrono::high_resolution_clock::now();
+        const auto start = clock::now();
         for (int i = 0; i < iterations; ++i) {
             task();
         }
-        return std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
+        return std::chrono::duration<double, std::milli>(clock::now() - start).count();
     };
 
     double t1 = measure([&]() {
@@ -93,9 +94,9 @@ export void run_span_examples() {
     std::println("Key Principle: Use for contiguous sequence parameters. Decouples function from container type.\n");
 
     std::println("1. Basic usage with different containers:");
-    std::vector<int> vec = {1, 2, 3, 4, 5};
+    std::vector vec = {1, 2, 3, 4, 5};
     std::array<int, 3> arr = {10, 20, 30};
-    int c_arr[] = {100, 200, 300, 400};
+    constexpr int c_arr[] = {100, 200, 300, 400};
 
     demo_span(vec);
     demo_span(arr);
@@ -106,7 +107,7 @@ export void run_span_examples() {
     std::println("  Sum of array elements: {}", sum_elements(arr));
     
     std::println("\n3. Data modification (non-const span):");
-    std::vector<int> nums = {1, 2, 3, 4, 5};
+    std::vector nums = {1, 2, 3, 4, 5};
     std::print("  Before: ");
     demo_span(nums);
     multiply_by_two(nums);

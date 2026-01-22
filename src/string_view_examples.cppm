@@ -68,15 +68,16 @@ void process_string_view(std::string_view sv) {
 }
 
 void compare_string_performance() {
+    using clock = std::chrono::high_resolution_clock;
     constexpr int iterations = 1000000;
     const std::string large_string(1024, 'x');
 
     auto measure = [](auto func, auto&& arg) {
-        auto start = std::chrono::high_resolution_clock::now();
+        const auto start = clock::now();
         for (int i = 0; i < iterations; ++i) {
             func(arg);
         }
-        return std::chrono::duration<double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
+        return std::chrono::duration<double, std::milli>(clock::now() - start).count();
     };
 
     double t1 = measure(process_string, "this is a test string");
@@ -101,8 +102,7 @@ export void run_string_view_examples() {
 
     // 1. Compile-time validation (Zero Overhead)
     std::println("1. Compile-time validation (consteval):");
-    constexpr std::string_view id = "variable_123";
-    if constexpr (is_valid_identifier(id)) {
+    if constexpr (constexpr std::string_view id = "variable_123"; is_valid_identifier(id)) {
         std::println("  '{}' is a valid identifier (Checked at compile-time!)", id);
     } else {
         std::println("  Invalid identifier (Compile-time error)");
